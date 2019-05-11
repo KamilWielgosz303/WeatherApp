@@ -1,0 +1,9 @@
+<resources>
+    <string name="Miasto">Miasto</string>
+    <string name="Ciśnienie">Ciśnienie</string>
+    <string name="Temperatura">Temperatura</string>
+    <string name="TempMax">Temp max.</string>
+    <string name="TempMin">Temp min.</string>
+    <string name="Wilgotnosc">Wilgotność</string>
+    <string name="Wiatr">Wiatr</string>
+</resources>
