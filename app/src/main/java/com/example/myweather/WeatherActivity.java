@@ -12,25 +12,18 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.Time;
 import java.text.SimpleDateFormat;
-import java.time.LocalTime;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
+import retrofit2.*;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.example.myweather.MainActivity.showAlert;
@@ -79,7 +72,7 @@ public class WeatherActivity extends AppCompatActivity {
 
             }
         };
-        timer.schedule(task, 0, 12000);
+        timer.schedule(task, 0, 35000);
 
         final SwipeRefreshLayout pullToRefresh = findViewById(R.id.pullToRefresh);
         pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -110,32 +103,51 @@ public class WeatherActivity extends AppCompatActivity {
 
                     if(!response.isSuccessful()) {
                         showAlert("Błąd: " + response.code(),context);
+                        final Intent intent = new Intent(REFERENCE, MainActivity.class);
+                        startActivity(intent);
                         return;
-                    }
+                    }else {
 
-                    WeatherDto weather = response.body();
-                    assert weather != null;
-                    Log.d("tag",weather.getName());
-                    city.setText(weather.getName());
-                    wind.setText(weather.getWind().getSpeed() + " km/h");
-                    temp.setText(weather.getMain().getTemp() + " °C");
-                    hum.setText(weather.getMain().getHumidity() + " %");
-                    temp_max.setText(weather.getMain().getTemp_max() + " °C");
-                    temp_min.setText(weather.getMain().getTemp_min() + " °C");
-                    press.setText(weather.getMain().getPressure() + " hPa");
-                    SimpleDateFormat sdfDate = new SimpleDateFormat("HH:mm:ss");//dd/MM/yyyy
-                    time.setText(sdfDate.format(Calendar.getInstance().getTime()));
+                        final WeatherDto weather = response.body();
+                        assert weather != null;
+                        Log.d("tag", weather.getName());
+                        city.setText(weather.getName());
+                        wind.setText(weather.getWind().getSpeed() + " km/h");
+                        temp.setText(weather.getMain().getTemp() + " °C");
+                        hum.setText(weather.getMain().getHumidity() + " %");
+                        temp_max.setText(weather.getMain().getTemp_max() + " °C");
+                        temp_min.setText(weather.getMain().getTemp_min() + " °C");
+                        press.setText(weather.getMain().getPressure() + " hPa");
+                        SimpleDateFormat sdfDate = new SimpleDateFormat("HH:mm");
+                        time.setText(sdfDate.format(Calendar.getInstance().getTime()));
 
-                    URL url;
-                    try {
-                        Weather[] temp = weather.getWeather();
-                        url = new URL(ICON_URL + temp[0].getIcon() + ".png");
-                        Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                        weatherImage.setImageBitmap(bmp);
-                    } catch (MalformedURLException e) {
-                        e.printStackTrace();
-                    }catch (IOException e) {
-                        e.printStackTrace();
+                        Thread thread = new Thread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                try {
+                                    URL url;
+                                    try {
+                                        Weather[] temp = weather.getWeather();
+                                        String icon_url = ICON_URL + temp[0].getIcon() + ".png";
+                                        Log.d("URL", icon_url);
+                                        url = new URL(icon_url);
+                                        Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                                        weatherImage.setImageBitmap(bmp);
+                                    } catch (MalformedURLException e) {
+                                        e.printStackTrace();
+                                        Log.d("URL", "Wyjtatek");
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                        Log.d("URL", "Wyjatek");
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+
+                        thread.start();
                     }
                 }
 
