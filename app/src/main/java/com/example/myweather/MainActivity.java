@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
         }else {
                        intent.putExtra("CITY", inputedCity);
                        startActivity(intent);
+                       finish();
         }
     }
 
